@@ -43,5 +43,6 @@ if __name__ == "__main__":
     print("U",U)
     print("\n")
     print("A:", np.dot(L,U))
+    print("\n")
     print("x:",x)
     
