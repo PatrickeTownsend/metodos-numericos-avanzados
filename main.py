@@ -30,24 +30,24 @@ def BackSub(L, U, b):
         x[i-1] = x[i-1] / U[i-1,i-1]
     return x
 
-def Singular(A):
-    (row,col) = np.shape(A)
-    for i in range(0,row):
-        for j in range(0,col):
-            if i==j:
-                if A[i,j]==0:
-                    singular = True
-    return singular
+# def Singular(A):
+#     (row,col) = np.shape(A)
+#     for i in range(0,row):
+#         for j in range(0,col):
+#             if i==j:
+#                 if A[i,j]==0:
+#                     singular = True
+#     return singular
 
 if __name__ == "__main__":
     
     A = np.array([[1,2,3],[4,6,5],[7,8,7]])
     b = np.array([1,1,2])
     
-    if Singular(A):
-        for j in range(0,np.shape(A)[1]):
-            col = list(A[:,j])
-            zero_pos = col.index(0)
+    # if Singular(A):
+    #     for j in range(0,np.shape(A)[1]):
+    #         col = list(A[:,j])
+    #         zero_pos = col.index(0)
 
     L, U = LUdcmp(A)
     x = BackSub(L,U,b)
