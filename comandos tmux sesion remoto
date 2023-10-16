@@ -1,0 +1,17 @@
+Multiplexores determinados (para que siga corriendo sin apagar el ordenador)
+ctrl + b + d (salgo de la sesion de tmux sin matarla, solo hago detach)
+tmux ls me permite ver la cantidad de sesiones activas
+tmux a (me vuelo a unir en la ultima sesion attach)
+CTRL b " PARA ABRIR OTRA PANTALLA HORIZONTAL
+ctrl b % para abrir otra pantalla vertical
+crtl b T para ver la hora
+ctrl b felchas para moverme por las pantallas
+ctrl b x para cerrar una
+ctrl b c para una nueva ventana
+ctrl b n para moverme a la siguiente
+ctrl b p para volver a la anterior
+ctrl b w para ver el menu rapido
+tmux new para abrir una sesion nueva
+tmux a -t #numero o nombre de la sesion
+tmux kill-session -t #nombre o numero para matar
+logout para cerrar la sesion remoto
