@@ -22,10 +22,10 @@ function halfPoint(x_half, x, fx)
         end
     end
 end
-x_need = 0.3
+x_need = 0.02
 y = halfPoint(x_need, x_i, fx)
 exact = f(x_need)
-error = abs(exact-y)
+error = abs(exact-y)/exact
 println("valor objetivo $x_need")
 println("error = $error")
 println("valor interpolado = $y")
