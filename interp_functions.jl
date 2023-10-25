@@ -19,13 +19,6 @@ function epsilon(x,xᵢ)
     return π
 end
 
-function epsilon_eq(x,xᵢ)
-    N = length(xᵢ)
-    Δx = (xᵢ[N]-xᵢ[1])/N
-    cte = (Δx^(N+1))/(factorial(big(N+1)))
-    π = prod(x/Δx - xᵢ[j] for j =1:N)
-    return cte*π
-end
 
 function ChebyshevNode(x_init, x_end, n)
     x_ch = zeros(n)
@@ -37,10 +30,27 @@ end
 
 function Plot_func(xₗ, yₗ, Pᵢ)
     Plots.plot(xₗ , yₗ, label="f(x) exacta")
-    Plots.scatter!(xₗ , Pᵢ, label="F(x) numerica")
+    plot= Plots.scatter!(xₗ , Pᵢ, label="F(x) numerica")
     Plots.xlabel!("xₗ")
-    Plots.ylabel!("y")
-    Plots.title!("Interpolacion")
+    ylabel!("y")
+    title!("Interpolacion")
+    display(plot)
 end
 
-#function LagrangeBary(x ,xᵢ ,yᵢ)
+function distribucionB(x_init, x_end, n)
+    x_ch = zeros(n+1)
+    x_ch[1] += cos(π*((2*0+1)/(2*n+2))) 
+    for i =1:n
+        x_ch[i+1] = cos(π*((2*i+1)/(2*n+2))) 
+    end
+    return x_ch
+end
+
+function  distribucionC(x_init,x_end,n)
+    x_ch = zeros(n+1)
+    x_ch[1]+=cos(π*0/n)
+    for i =1:n
+        x_ch[i+1] = cos(π*i/n) 
+    end
+    return x_ch
+end
