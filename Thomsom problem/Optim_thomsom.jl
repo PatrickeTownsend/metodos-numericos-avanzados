@@ -16,6 +16,7 @@ N = 32 #number of charges
     -1 ≤ z[1:N] ≤ 1
 end)
 coordinates = Initialization(N)
+#coordinates = InitRandom(N)
 set_start_value.(x,coordinates[:,1])
 set_start_value.(y,coordinates[:,2])
 set_start_value.(z,coordinates[:,3])
@@ -30,3 +31,4 @@ println("----Ipopt----")
 println("Potential: $U")
 println(r[1,:])
 println(r[2,:])
+PlotSphere(value.(x),value.(y),value.(z),"Ipopt")
