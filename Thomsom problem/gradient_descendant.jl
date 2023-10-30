@@ -41,7 +41,9 @@ y = r[:,2]
 z = r[:,3]
 
 #---Output---#
+println("--------------------------")
 println("-----Gradient Descent-----")
+println("--------------------------")
 println("Converged at iter $N_iter with U = ",U[2])
 
 #---Plot---#
