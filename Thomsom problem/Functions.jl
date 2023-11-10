@@ -1,3 +1,5 @@
+using LinearAlgebra
+using Plots
 function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
     n = 100
     r=0.95
@@ -13,6 +15,8 @@ function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
       plt = title!("Gradient descent results")
     elseif  type == "Ipopt"
        plt =title!("Ipopt results")
+    elseif type=="Newton"
+       plt =title!("Newton 2nd results")
     end
     display(plt)
     #savefig(plt,"Thomsom problem/plots/results_$type.png")
@@ -36,6 +40,34 @@ function Gradient(r::Array, i::Int, N::Int)
     end
     return grad
 end
+
+function hessian(r::Array, i::Int, N::Int)
+    H = zeros(length(r[i,:]),length(r[i,:]))
+    xᵢ = r[i,1]
+    yᵢ = r[i,2]
+    zᵢ = r[i,3]
+    for j=1:N
+        Δx = xᵢ - r[j,1]
+        Δy = yᵢ - r[j,2]
+        Δz = zᵢ - r[j,3]
+        if i!=j
+            den = (Δx^2 + Δy^2 + Δz^2)^(5/2)
+            H[1,1]+= -(Δy^2 + Δz^2 - 2*Δx^2)/den
+            H[2,2]+= -(Δx^2 + Δz^2 - 2*Δy^2)/den
+            H[3,3] += -(Δx^2 + Δy^2 - 2*Δz^2)/den
+            H[1,2]+= (3*Δx*Δy)/den
+            H[1,3]+= (3*Δx*Δz)/den
+            H[2,3]+= (3*Δy*Δz)/den
+            H[2,1]+= H[1,2]
+            H[3,1]+= H[1,3]
+            H[3,2]+= H[2,3]
+            
+        end
+    end
+    return H
+end
+
+
 
 function Initialization(N::Int)
     r = 1
@@ -70,4 +102,13 @@ function InitRandom(N::Int)
     z = 2*rand(N) .- 1
     coordinates = hcat(x,y,z)
     return coordinates
+end
+
+function PlotResiduals(residuals::Array,N_iterations::Vector,type::String)
+    gr()
+    plot(N_iterations,[residuals[:,1],residuals[:,2],residuals[:,3] ],
+    label=["x residual" "y residual" "z residual"],xlabel="Iterations",ylabel="Residuals",yaxis=:log10)
+    plt = Plots.title!("$type residuals")
+    savefig(plt,"Thomsom problem/plots/residuals$type.png")
+    display(plt)
 end
