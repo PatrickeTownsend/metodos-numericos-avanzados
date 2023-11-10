@@ -31,9 +31,7 @@ function gradient_descent(N::Int, râ‚€::Array, max_tol::Float64, max_iter::Int,Î
     println("-----Gradient Descent-----")
     println("--------------------------")
     println("Converged at iter $N_iter with U = ",U[2])
-    PlotSphere(r[:,1],r[:,2],r[:,3],"Gradient")
-    PlotResiduals(residuals,iterations,"Gradient")
-    return nothing
+    return r,residuals,iterations
 end
 
 
