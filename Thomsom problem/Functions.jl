@@ -1,8 +1,11 @@
 using LinearAlgebra
 using Plots
+using JSON
+using OrderedCollections
 function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
     n = 100
     r=0.95
+    N = length(x)
     u = range(-π,π; length=n)
     v = range(0,2π; length=n)
     x_s = r*cos.(u)*sin.(v)'
@@ -10,16 +13,9 @@ function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
     z_s = r*ones(n)*cos.(v)'
     plotly()
     surface(x_s,y_s,z_s, color =:grey, legend=false)
-    scatter!(x,y,z, markersize = 3,color=:red)
-    if type == "Gradient"
-      plt = title!("Gradient descent results")
-    elseif  type == "Ipopt"
-       plt =title!("Ipopt results")
-    elseif type=="Newton"
-       plt =title!("Newton 2nd results")
-    end
+    scatter!(x,y,z, markersize = 3,color=:red,xlabel="X",ylabel="Y",zlabel="Z")
+    plt =title!("Distribution with $type for $N points")
     display(plt)
-    #savefig(plt,"Thomsom problem/plots/results_$type.png")
 end
 function PotentialEnergy(r::Array, N::Int)
     pot = 0.0
@@ -41,35 +37,8 @@ function Gradient(r::Array, i::Int, N::Int)
     return grad
 end
 
-function hessian(r::Array, i::Int, N::Int)
-    H = zeros(length(r[i,:]),length(r[i,:]))
-    xᵢ = r[i,1]
-    yᵢ = r[i,2]
-    zᵢ = r[i,3]
-    for j=1:N
-        Δx = xᵢ - r[j,1]
-        Δy = yᵢ - r[j,2]
-        Δz = zᵢ - r[j,3]
-        if i!=j
-            den = (Δx^2 + Δy^2 + Δz^2)^(5/2)
-            H[1,1]+= -(Δy^2 + Δz^2 - 2*Δx^2)/den
-            H[2,2]+= -(Δx^2 + Δz^2 - 2*Δy^2)/den
-            H[3,3] += -(Δx^2 + Δy^2 - 2*Δz^2)/den
-            H[1,2]+= (3*Δx*Δy)/den
-            H[1,3]+= (3*Δx*Δz)/den
-            H[2,3]+= (3*Δy*Δz)/den
-            H[2,1]+= H[1,2]
-            H[3,1]+= H[1,3]
-            H[3,2]+= H[2,3]
-            
-        end
-    end
-    return H
-end
 
-
-
-function Initialization(N::Int)
+function InititDeserno(N::Int)
     r = 1
     N = N
     x = zeros(N+1)
@@ -111,4 +80,39 @@ function PlotResiduals(residuals::Array,N_iterations::Vector,type::String)
     plt = Plots.title!("$type residuals")
     savefig(plt,"Thomsom problem/plots/residuals$type.png")
     display(plt)
+end
+
+function writeJSON(r::Array,N::Int)
+    data = [OrderedDict{String,Float64}("x" => r[i,1], "y" => r[i,2], "z" => r[i,3]) for i=1:N]
+    open("results$N.json","w") do f
+       JSON.print(f, data, 4)
+    end
+end
+
+
+function InitFibonacci(N::Int)
+    r = zeros(N,3)
+    Φ = (1+sqrt(5))/2
+    for i=0:N-1
+        tx = (i+0.5)/(N)
+        ty = i/Φ
+        θ = acos(2*tx-1)-pi/2
+        ϕ = 2*pi*ty
+        r[i+1,1] = cos(θ)*cos(ϕ)
+        r[i+1,2] = cos(θ)*sin(ϕ)
+        r[i+1,3] = sin(θ)
+    end
+    return r
+end
+
+function InitPotential(r_rand::Array,r_fibo::Array,r_des::Array,r_ipopt::Array,N::Int)
+    U_rand = PotentialEnergy(r_rand,N)
+    U_fibo = PotentialEnergy(r_fibo,N)
+    U_des = PotentialEnergy(r_des,N)
+    U_ipopt = PotentialEnergy(r_ipopt,N)
+    println("---------Initial Potential----------")
+    println("Random init   : ",U_rand)
+    println("Fibonacci init: ",U_fibo)
+    println("Descerno init : ",U_des)
+    println("IPOPT init    : ",U_ipopt)
 end

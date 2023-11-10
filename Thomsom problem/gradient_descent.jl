@@ -1,6 +1,6 @@
 using LinearAlgebra
 include("Functions.jl")
-function gradient_descent(N::Int, r₀::Array, max_tol::Float64, max_iter::Int,α::Float64)
+function gradient_descent(N::Int, r₀::Array, max_tol::Float64, max_iter::Int,α::Float64, type::String)
     r = zeros(N,3)
     U = zeros(2)
     r[:,:] = r₀
@@ -11,9 +11,9 @@ function gradient_descent(N::Int, r₀::Array, max_tol::Float64, max_iter::Int,�
     while N_iter < max_iter 
         tot_grad = zeros(3)
         for i = 1:N
-           r[i, :] = r[i,:] - α*Gradient(r,i,N)
-           r[i, :] /= norm(r[i,:])
-           tot_grad += Gradient(r,i,N)
+            r[i, :] = r[i,:] - α*Gradient(r,i,N)
+            r[i, :] /= norm(r[i,:])
+            tot_grad += Gradient(r,i,N)
         end
         U[2] = PotentialEnergy(r,N)
         residuals[N_iter,:] += abs.(tot_grad)
@@ -27,10 +27,15 @@ function gradient_descent(N::Int, r₀::Array, max_tol::Float64, max_iter::Int,�
     residuals = residuals[1:N_iter,:]
     iterations = iterations[1:N_iter]
     #---Output---#
-    println("--------------------------")
-    println("-----Gradient Descent-----")
-    println("--------------------------")
+    println("                                  ")
+    println("----------------------------------")
+    println("---------Gradient Descent---------")
+    println("----------------------------------")
+    println("Initial estimation: $type")
     println("Converged at iter $N_iter with U = ",U[2])
+    println("                                        ")
+    println("Iter $N_iter) x: ",residuals[N_iter,1]," y: ",residuals[N_iter,2]," z: ",residuals[N_iter,3])
+    println("--------------------Execution Time----------------------------")
     return r,residuals,iterations
 end
 

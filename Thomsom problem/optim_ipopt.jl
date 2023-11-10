@@ -21,10 +21,5 @@ function optim_ipopt(N,r₀,max_tol)
     @NLobjective(model, Min, sum(sum(((x[i] - x[j])^2 + (y[i] - y[j])^2 + (z[i] - z[j])^2)^(-0.5) for j=i+1:N) for i=1:N-1 ))
     optimize!(model)
     r = hcat(value.(x),value.(y),value.(z))
-    U = PotentialEnergy(r,N)
-    println("--------------------------")
-    println("-------Ipopt solver-------")
-    println("--------------------------")
-    println("Converged with U = ",U)
-    return nothing
+    return r
 end
