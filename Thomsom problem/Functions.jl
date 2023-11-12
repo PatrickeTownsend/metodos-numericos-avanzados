@@ -11,10 +11,11 @@ function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
     x_s = r*cos.(u)*sin.(v)'
     y_s = r*sin.(u)*sin.(v)'
     z_s = r*ones(n)*cos.(v)'
-    plotly()
+    plotlyjs()
     surface(x_s,y_s,z_s, color =:grey, legend=false)
-    scatter!(x,y,z, markersize = 3,color=:red,xlabel="X",ylabel="Y",zlabel="Z")
-    plt =title!("Distribution with $type for $N points")
+    scatter!(x,y,z, markersize = 4,color=:red,xlabel="X",ylabel="Y",zlabel="Z")
+    plt =title!("$type distribution for $N points")
+    #savefig(plt,"Thomsom problem/plots/$type Distribution $N.png")
     display(plt)
 end
 function PotentialEnergy(r::Array, N::Int)
@@ -66,25 +67,32 @@ function InititDeserno(N::Int)
 end
 
 function InitRandom(N::Int)
-    x = 2*rand(N) .- 1
-    y = 2*randn(N) .- 1
-    z = 2*rand(N) .- 1
+    θ = rand(N)*2pi 
+    ϕ = acos.(2 .*rand(N) .- 1)
+    x = @. sin(ϕ)*cos(θ)
+    y = @. sin(ϕ)*sin(θ)
+    z = @. cos(ϕ)
     coordinates = hcat(x,y,z)
     return coordinates
 end
 
-function PlotResiduals(residuals::Array,N_iterations::Vector,type::String)
+function PlotResiduals(residuals::Array,N_iterations::Vector,grad::Vector, type::String,init::String)
     gr()
     plot(N_iterations,[residuals[:,1],residuals[:,2],residuals[:,3] ],
-    label=["x residual" "y residual" "z residual"],xlabel="Iterations",ylabel="Residuals",yaxis=:log10)
-    plt = Plots.title!("$type residuals")
-    savefig(plt,"Thomsom problem/plots/residuals$type.png")
+    label=["x residual" "y residual" "z residual"],xlabel="Iterations",ylabel="Derivatives",yaxis=:log10,
+    linewidth=2)
+    plt = Plots.title!("$type evolution $init initialization")
+    plt2 = plot(N_iterations,grad, xlabel="Iterations",ylabel="Residual",title="Iteration residuals $init initialization",
+    legend=false)
+    #savefig(plt,"Thomsom problem/plots/derivatives$type $init.png")
+    #savefig(plt2,"Thomsom problem/plots/residual$type $init.png")
     display(plt)
+    display(plt2)
 end
 
 function writeJSON(r::Array,N::Int)
     data = [OrderedDict{String,Float64}("x" => r[i,1], "y" => r[i,2], "z" => r[i,3]) for i=1:N]
-    open("results$N.json","w") do f
+    open("Thomsom problem/results$N.json","w") do f
        JSON.print(f, data, 4)
     end
 end
