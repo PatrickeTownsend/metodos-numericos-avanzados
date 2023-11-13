@@ -2,6 +2,16 @@ using LinearAlgebra
 using Plots
 using JSON
 using OrderedCollections
+"""
+Plots the sphere with the charges equidistributed
+
+# INPUT
+- `x::Vector` X coordinates of the charges
+- `y::Vector` Y coordinates of the charges
+- `z::Vector` Z coordinates of the charges
+- `type::String` type of distribution
+
+"""
 function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
     n = 100
     r=0.95
@@ -18,6 +28,16 @@ function PlotSphere(x::Vector,y::Vector,z::Vector, type::String)
     #savefig(plt,"Thomsom problem/plots/$type Distribution $N.png")
     display(plt)
 end
+"""
+Calculates the potential energy of the whole configuration
+
+# INPUT
+- `r::Array` Array with coordinates of each charges
+- `N::Int` Number of charges to place
+
+# OUTPUT 
+- `pot::Float64` Potential energy
+"""
 function PotentialEnergy(r::Array, N::Int)
     pot = 0.0
     for i = 1:N-1
@@ -27,7 +47,16 @@ function PotentialEnergy(r::Array, N::Int)
     end
     return pot
 end
+"""
+Calculates the gradient of the function for a charge i
+# INPUT 
+- `r::Array` Array with coordinates of each charges
+- `i::Int` Number of the charge
+- `N::Int` Number of charges to place
 
+# OUTPUT 
+- `grad::Vector` Gradiente vector of charge i 
+"""
 function Gradient(r::Array, i::Int, N::Int)
     grad = zeros(length(r[i,:]))
     for j = 1:N
@@ -37,7 +66,15 @@ function Gradient(r::Array, i::Int, N::Int)
     end
     return grad
 end
+"""
+Deserno initial configuration
 
+# INPUT
+- `N::Int` Number of charges
+
+# OUTPUT 
+- `coordinates::Array` Array with the initial configuration 
+"""
 
 function InititDeserno(N::Int)
     r = 1
@@ -65,7 +102,14 @@ function InititDeserno(N::Int)
     coordinates = hcat(x[1:N],y[1:N],z[1:N])
     return coordinates
 end
+"""
+Generate a random initial configuration
+# INPUT
+- `N::Int` Number of charges
 
+# OUTPUT 
+- `coordinates::Array` Array with the initial configuration 
+"""
 function InitRandom(N::Int)
     θ = rand(N)*2pi 
     ϕ = acos.(2 .*rand(N) .- 1)
@@ -75,10 +119,12 @@ function InitRandom(N::Int)
     coordinates = hcat(x,y,z)
     return coordinates
 end
-
-function PlotResiduals(residuals::Array,N_iterations::Vector,grad::Vector, type::String,init::String)
+"""
+Plots the residuals and derivatives of the iterations
+"""
+function PlotResiduals(derivatives::Array,N_iterations::Vector,grad::Vector, type::String,init::String)
     gr()
-    plot(N_iterations,[residuals[:,1],residuals[:,2],residuals[:,3] ],
+    plot(N_iterations,[derivatives[:,1],derivatives[:,2],derivatives[:,3] ],
     label=["x residual" "y residual" "z residual"],xlabel="Iterations",ylabel="Derivatives",yaxis=:log10,
     linewidth=2)
     plt = Plots.title!("$type evolution $init initialization")
@@ -89,14 +135,23 @@ function PlotResiduals(residuals::Array,N_iterations::Vector,grad::Vector, type:
     display(plt)
     display(plt2)
 end
-
+"""
+Writes a JSON file with each charge position vector
+"""
 function writeJSON(r::Array,N::Int)
     data = [OrderedDict{String,Float64}("x" => r[i,1], "y" => r[i,2], "z" => r[i,3]) for i=1:N]
     open("Thomsom problem/results$N.json","w") do f
        JSON.print(f, data, 4)
     end
 end
+"""
+Generate a Fibonacci Lattice configuration
+# INPUT
+- `N::Int` Number of charges
 
+# OUTPUT 
+- `r::Array` Array with the initial configuration 
+"""
 
 function InitFibonacci(N::Int)
     r = zeros(N,3)
@@ -112,7 +167,16 @@ function InitFibonacci(N::Int)
     end
     return r
 end
+"""
+Print the potential for each initial distribution
 
+# INPUT 
+- `r_rand::Array` Random configuration coordinates
+- `r_fibo::Array` Fibonacci configuration coordinates
+- `r_des::Array` Deserno configuration coordinates
+- `r_ipopt::Array` IPOPT configuration coordinates
+- `N::Int` Number of charges
+"""
 function InitPotential(r_rand::Array,r_fibo::Array,r_des::Array,r_ipopt::Array,N::Int)
     U_rand = PotentialEnergy(r_rand,N)
     U_fibo = PotentialEnergy(r_fibo,N)

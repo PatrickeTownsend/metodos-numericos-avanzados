@@ -17,23 +17,24 @@ function newton2nd(N::Int, r₀::Array, max_tol::Float64, max_iter::Int,α::Floa
                 r[i,:,2] = r[i,:,1] + s[1,:]
                 r[i,:,2] /= norm(r[i,:,2])
             else
+                α = ArmijosLinearSearch(α,r,s, max_iter, i)
                 r[i,:,2] = r[i,:,1] + α*s[1,:]
                 r[i,:,2] /= norm(r[i,:,2])
-                s[2,:] = -Gradient(r[:,:,2],i,N) + s[1,:]*(Gradient(r[:,:,2],i,N)'*Gradient(r[:,:,2],i,N))/(Gradient(r[:,:,1],i,N)'*Gradient(r[:,:,1],i,N))
+                s[2,:] = -Gradient(r[:,:,2],i,N) + s[1,:]*(dot(Gradient(r[:,:,2],i,N),Gradient(r[:,:,2],i,N)))/(dot(Gradient(r[:,:,1],i,N),Gradient(r[:,:,1],i,N)))
                 tot_grad+=Gradient(r[:,:,2],i,N)
             end
         end
-            U[2] = PotentialEnergy(r[:,:,2],N)
-            residuals[N_iter,:]+=tot_grad
-            if abs(U[2]-U[1]) ≤ max_tol
-                break
-            else
-                N_iter+=1
-                U[1]=U[2]
-                r[:,:,1] = r[:,:,2]
-                s[1,:] = s[2,:]
-                iterations[N_iter]+=N_iter
-            end
+        U[2] = PotentialEnergy(r[:,:,2],N)
+        residuals[N_iter,:]+=tot_grad
+        if norm(tot_grad) ≤ max_tol
+            break
+        else
+            N_iter+=1
+            U[1]=U[2]
+            r[:,:,1] = r[:,:,2]
+            s[1,:] = s[2,:]
+            iterations[N_iter]+=N_iter
+        end
     end
     residuals = residuals[1:N_iter,:]
     iterations = iterations[1:N_iter]     

@@ -1,7 +1,17 @@
 using JuMP
 using Ipopt
 include("Functions.jl")
+"""
+IPOPT configuration generator
 
+# INPUT
+- `N::Int` Number of charges
+- `r₀::Array` Random initial configuration
+-`max_tol::Float64` Convergence tolerance
+
+# OUPUT 
+- `r::Array` Optimal charges configuration
+"""
 function optim_ipopt(N,r₀,max_tol)
     model = Model(Ipopt.Optimizer)
     set_attribute(model, "print_level",0)

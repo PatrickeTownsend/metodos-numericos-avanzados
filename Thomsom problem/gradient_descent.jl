@@ -1,5 +1,23 @@
 using LinearAlgebra
 include("Functions.jl")
+
+"""
+Gradient Descent algorithm
+
+# INPUT
+- `N::Int` Number of charges
+- `r₀::Array` Initial configuration
+- `max_tol::Float64` Convergence tolerance
+- `max_iter::Int` Maximun number of iterations
+- `α::Float64` Step size 
+- `type::String` type of initialization used
+
+# OUTPUT
+- `r::Array` Array with the position of each charge
+- `residuals:: Vector` Residuals of the iteration
+- `iterations::Vector` Vector with the iterations numbers
+- `derivatives::Array` Array with the gradiente vector of each iteration
+"""
 function gradient_descent(N::Int, r₀::Array, max_tol::Float64, max_iter::Int,α::Float64, type::String)
     r = zeros(N,3)
     U = zeros(2)
