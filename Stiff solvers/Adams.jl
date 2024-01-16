@@ -1,5 +1,6 @@
 module Adams
     export Bashforth
+    using LinearAlgebra
 
 
     function Bashforth(IVP, k::Int, h)
@@ -42,9 +43,84 @@ module Adams
             f[:,n+1] += IVP.RHS(t[n+1], y[:,n+1])
             t[n+1] += t[n] + h
         end
-        
+
         return t, y, f
     end
+
+    function Moulton(IVP,k::Int, h, prob)
+        t0 = IVP.tspan[1]
+        tf = IVP.tspan[2]
+        y0 = IVP.IC
+        tol = 1e-9
+
+        Steps = round(Int, (tf-t0)/h)
+
+        Current_k = 1
+        Stepper = AB1
+
+        t = zeros(Steps)
+        y = zeros(length(y0), Steps)
+        f = zeros(length(y0), Steps)
+        y[:,1] += y0
+        t[1] += t0
+        f[:,1] += IVP.RHS(t0, y0)
+
+
+        for n = 1:(k)
+
+            t[n+1] += t[n] + h
+            y[:,n+1] += Stepper(h, y[:,n], f[:,1:n])
+            f[:,n+1] += IVP.RHS(t[n+1], y[:,n+1])
+            Current_k += 1
+
+            if  Current_k == 2
+                Stepper = AB2
+            elseif Current_k == 3
+                Stepper = AB3
+            elseif Current_k == 4
+                Stepper = AB4
+            end
+        end
+
+
+        if prob == 2
+            J = -1 + (h/24)*(9)*(-1e6)
+            for n = k:(Steps-1)
+                t[n+1] += t[n] + h
+                δ = 1
+                while norm(δ)>tol
+                    f = y[:,n] + (h/24)*(9*IVP.RHS(t[n+1],y[:,n+1]) + 19*IVP.RHS(t[n],y[:,n]) -5*IVP.RHS(t[n-1],y[:,n-1])
+                    + IVP.RHS(t[n-2],y[:,n-2])) - y[:,n+1]
+                    δ = - J\ f
+                    y[:,n+1] += δ
+                end
+                
+            end
+        end
+
+        
+        if prob == 1
+            for n = k:(Steps-1)
+                t[n+1] += t[n] + h
+                δ = 1
+                y[:,n+1] = y[:,n]
+                while norm(δ)>tol
+                    J = Jacobian(y[:,n+1],h)
+                    f = y[:,n] + (h/24)*(9*IVP.RHS(t[n+1],y[:,n+1]) + 19*IVP.RHS(t[n],y[:,n]) -5*IVP.RHS(t[n-1],y[:,n-1])
+                    + IVP.RHS(t[n-2],y[:,n-2])) - y[:,n+1]
+                    δ = - J \ f
+                    #println(norm(δ))
+                    y[:,n+1] += δ
+                end
+                
+            end
+        end
+
+
+        return t, y
+
+    end
+
 
 
 
@@ -104,6 +180,27 @@ module Adams
                             +  251. * fprev[:,end-4] ) / 720.;
         return ynext
     end
+
+    function Jacobian(y, h)
+        dF1dy1 = -1 + (h/24)*(9)*(-0.04)
+        dF1dy2 =  (h/24)*(9)*(1e4)*y[3]
+        dF1dy3 = (h/24)*(9)*(1e4)*y[2]
+
+        dF2dy1 = (h/24)*(9)*(0.04)
+        dF2dy2 = -1 + (h/24)*(9)*((-1e4)*y[3] - 2*(3e7)*y[2])
+        dF2dy3 = (h/24)*(9)*(-1e4)*y[2]
+
+        dF3dy1 = (h/24)*(9)*(0)
+        dF3dy2 = (h/24)*(9)*(2*3e7)*y[2]
+        dF3dy3 = -1 
+
+        J = [dF1dy1 dF1dy2 dF1dy3;
+             dF2dy1 dF2dy2 dF2dy3;
+             dF3dy1 dF3dy2 dF3dy3]
+
+        return J
+    end
+
 
 
 
