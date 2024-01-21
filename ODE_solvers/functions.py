@@ -62,20 +62,29 @@ def Lorenz(x0,y0,z0,dt,N):
         x[:,1],y[:,1],z[:,1] = solv.Euler_exp(t,x[:,1],y[:,1],z[:,1],Lorenz_attractor,dt,i)
         x[:,2],y[:,2],z[:,2] = solv.Euler_imp(t,x[:,2],y[:,2],z[:,2],Lorenz_attractor,dt,i,Lorenz_J)
     
-    fig, ax1 = plt.subplots(1, 3, figsize=(15, 5), subplot_kw={'projection': '3d'})
+    fig, ax1 = plt.subplots(1, 3, figsize=(10, 5), subplot_kw={'projection': '3d'})
 
 
     ax1[0].plot(x[:,0], y[:,0], z[:,0])
     ax1[0].set_title('Runge-Kutta 4')
+    ax1[0].set_xlabel("x")
+    ax1[0].set_ylabel("y")
+    ax1[0].set_zlabel("z")
 
 
     ax1[1].plot(x[:,1], y[:,1], z[:,1])
     ax1[1].set_title('Euler explicito')
+    ax1[1].set_xlabel("x")
+    ax1[1].set_ylabel("y")
+    ax1[1].set_zlabel("z")
 
     ax1[2].plot(x[:,2], y[:,2], z[:,2])
     ax1[2].set_title('Euler implicito')
+    ax1[2].set_xlabel("x")
+    ax1[2].set_ylabel("y")
+    ax1[2].set_zlabel("z")
     fig.suptitle("Atractor de Lorenz")
-    plt.savefig("ODE_solvers/plots/lorenz.png")
+    #plt.savefig("ODE_solvers/plots/lorenz.png")
     plt.show()
     
 def Thomas(x0,y0,z0,dt,N):
@@ -92,20 +101,29 @@ def Thomas(x0,y0,z0,dt,N):
         x[:,1],y[:,1],z[:,1] = solv.Euler_exp(t,x[:,1],y[:,1],z[:,1],Thomas_attractor,dt,i)
         x[:,2],y[:,2],z[:,2] = solv.Euler_imp(t,x[:,2],y[:,2],z[:,2],Thomas_attractor,dt,i,Thomas_J)
     
-    fig, ax1 = plt.subplots(1, 3, figsize=(15, 5), subplot_kw={'projection': '3d'})
+    fig, ax1 = plt.subplots(1, 3, figsize=(10, 5), subplot_kw={'projection': '3d'})
 
 
     ax1[0].plot(x[:,0], y[:,0], z[:,0])
     ax1[0].set_title('Runge-Kutta 4')
+    ax1[0].set_xlabel("x")
+    ax1[0].set_ylabel("y")
+    ax1[0].set_zlabel("z")
 
 
     ax1[1].plot(x[:,1], y[:,1], z[:,1])
     ax1[1].set_title('Euler explicito')
+    ax1[1].set_xlabel("x")
+    ax1[1].set_ylabel("y")
+    ax1[1].set_zlabel("z")
 
     ax1[2].plot(x[:,2], y[:,2], z[:,2])
     ax1[2].set_title('Euler implicito')
+    ax1[2].set_xlabel("x")
+    ax1[2].set_ylabel("y")
+    ax1[2].set_zlabel("z")
     fig.suptitle("Atractor de Thomas")
-    plt.savefig("ODE_solvers/plots/thomas.png")
+    #plt.savefig("ODE_solvers/plots/thomas.png")
     plt.show()
     
 def Rossler(x0,y0,z0,dt,N):
@@ -122,20 +140,29 @@ def Rossler(x0,y0,z0,dt,N):
         x[:,1],y[:,1],z[:,1] = solv.Euler_exp(t,x[:,1],y[:,1],z[:,1],Rossler_attractor,dt,i)
         x[:,2],y[:,2],z[:,2] = solv.Euler_imp(t,x[:,2],y[:,2],z[:,2],Rossler_attractor,dt,i,Rossler_J)
     
-    fig, ax1 = plt.subplots(1, 3, figsize=(15, 5), subplot_kw={'projection': '3d'})
+    fig, ax1 = plt.subplots(1, 3, figsize=(10, 5), subplot_kw={'projection': '3d'})
 
 
     ax1[0].plot(x[:,0], y[:,0], z[:,0])
     ax1[0].set_title('Runge-Kutta 4')
+    ax1[0].set_xlabel("x")
+    ax1[0].set_ylabel("y")
+    ax1[0].set_zlabel("z")
 
 
     ax1[1].plot(x[:,1], y[:,1], z[:,1])
     ax1[1].set_title('Euler explicito')
+    ax1[1].set_xlabel("x")
+    ax1[1].set_ylabel("y")
+    ax1[1].set_zlabel("z")
 
     ax1[2].plot(x[:,2], y[:,2], z[:,2])
     ax1[2].set_title('Euler implicito')
+    ax1[2].set_xlabel("x")
+    ax1[2].set_ylabel("y")
+    ax1[2].set_zlabel("z")
     fig.suptitle("Atractor de Rossler")
-    plt.savefig("ODE_solvers/plots/rossler.png")
+    #plt.savefig("ODE_solvers/plots/rossler.png")
     plt.show()
     
 
@@ -153,19 +180,28 @@ def Three_Scroll(x0,y0,z0,dt,N):
         x[:,1],y[:,1],z[:,1] = solv.Euler_exp(t,x[:,1],y[:,1],z[:,1],Three_Scroll_attractor,dt,i)
         x[:,2],y[:,2],z[:,2] = solv.Euler_imp(t,x[:,2],y[:,2],z[:,2],Three_Scroll_attractor,dt,i,ThreeScoll_J)
     
-    fig, ax1 = plt.subplots(1, 3, figsize=(15, 5), subplot_kw={'projection': '3d'})
+    fig, ax1 = plt.subplots(1, 3, figsize=(10, 5), subplot_kw={'projection': '3d'})
 
 
     ax1[0].plot(x[:,0], y[:,0], z[:,0])
     ax1[0].set_title('Runge-Kutta 4')
+    ax1[0].set_xlabel("x")
+    ax1[0].set_ylabel("y")
+    ax1[0].set_zlabel("z")
 
 
     ax1[1].plot(x[:,1], y[:,1], z[:,1])
     ax1[1].set_title('Euler explicito')
+    ax1[1].set_xlabel("x")
+    ax1[1].set_ylabel("y")
+    ax1[1].set_zlabel("z")
 
     ax1[2].plot(x[:,2], y[:,2], z[:,2])
     ax1[2].set_title('Euler implicito')
+    ax1[2].set_xlabel("x")
+    ax1[2].set_ylabel("y")
+    ax1[2].set_zlabel("z")
     fig.suptitle("Atractor de Three-Scroll")
-    plt.savefig("ODE_solvers/plots/three_scroll.png")
+    #plt.savefig("ODE_solvers/plots/three_scroll.png")
     plt.show()
     
