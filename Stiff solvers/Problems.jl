@@ -8,6 +8,7 @@ module Problems
         RHS::Function   # Function returning the right-hand side of the ODE as a column vector
         IC::Vector      # Initial Condition of the ODE. Value is either scalar or column vector.
         tspan::Tuple    # Tuple encoding the integration timespan, i.e. (t0, tf).
+        Jacobian::Function
     end
 
 
@@ -22,9 +23,31 @@ module Problems
         # Integration timespan
         tspan1 = (0., 40.);
 
+        function J1(y)
+            dF1dy1 = (-0.04)
+            dF1dy2 =  (1e4)*y[3]
+            dF1dy3 = (1e4)*y[2]
+    
+            dF2dy1 = (0.04)
+            dF2dy2 = ((-1e4)*y[3] - 2*(3e7)*y[2])
+            dF2dy3 = (-1e4)*y[2]
+    
+            dF3dy1 = 0
+            dF3dy2 = (2*3e7)*y[2]
+            dF3dy3 = 0
+    
+            J = [dF1dy1 dF1dy2 dF1dy3;
+                 dF2dy1 dF2dy2 dF2dy3;
+                 dF3dy1 dF3dy2 dF3dy3]
+    
+            return J
+        end
+
+       
+
 
         # Structure encoding the IVP
-        IVP1 = InitialValueProblem(RHS1, IC1, tspan1);
+        IVP1 = InitialValueProblem(RHS1, IC1, tspan1, J1);
 
 
     # ----- IVP2: Prothero-Robinson problem -----
@@ -37,9 +60,10 @@ module Problems
         
         # Integration timespan
         tspan2 = (0., 1. /10.);
-        
+
+        J2(y) = [-1e6]
 
         # Structure encoding the IVP
-        IVP2 = InitialValueProblem(RHS2, IC2, tspan2);
+        IVP2 = InitialValueProblem(RHS2, IC2, tspan2, J2);
 
 end

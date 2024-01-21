@@ -1,6 +1,7 @@
 module Adams
     export Bashforth
     using LinearAlgebra
+    include("LUdescomp.jl")
 
 
     function Bashforth(IVP, k::Int, h)
@@ -51,7 +52,8 @@ module Adams
         t0 = IVP.tspan[1]
         tf = IVP.tspan[2]
         y0 = IVP.IC
-        tol = 1e-9
+        tol = 1e-8
+        max_iter = 5000
 
         Steps = round(Int, (tf-t0)/h)
 
@@ -66,7 +68,7 @@ module Adams
         f[:,1] += IVP.RHS(t0, y0)
 
 
-        for n = 1:(k)
+        for n = 1:(k-1)
 
             t[n+1] += t[n] + h
             y[:,n+1] += Stepper(h, y[:,n], f[:,1:n])
@@ -82,37 +84,32 @@ module Adams
             end
         end
 
-
         if prob == 2
-            J = -1 + (h/24)*(9)*(-1e6)
-            for n = k:(Steps-1)
-                t[n+1] += t[n] + h
-                δ = 1
-                while norm(δ)>tol
-                    f = y[:,n] + (h/24)*(9*IVP.RHS(t[n+1],y[:,n+1]) + 19*IVP.RHS(t[n],y[:,n]) -5*IVP.RHS(t[n-1],y[:,n-1])
-                    + IVP.RHS(t[n-2],y[:,n-2])) - y[:,n+1]
-                    δ = - J\ f
-                    y[:,n+1] += δ
-                end
-                
-            end
-        end
-
-        
-        if prob == 1
             for n = k:(Steps-1)
                 t[n+1] += t[n] + h
                 δ = 1
                 y[:,n+1] = y[:,n]
-                while norm(δ)>tol
-                    J = Jacobian(y[:,n+1],h)
-                    f = y[:,n] + (h/24)*(9*IVP.RHS(t[n+1],y[:,n+1]) + 19*IVP.RHS(t[n],y[:,n]) -5*IVP.RHS(t[n-1],y[:,n-1])
-                    + IVP.RHS(t[n-2],y[:,n-2])) - y[:,n+1]
+                m = size(y)[1]
+                for i= 1:max_iter
+                    J = Matrix{Float64}(I,m,m) .- h .*(9/24).*IVP.Jacobian(y[:,n+1])
+                    f = -y[:,n] - (h/24)*(9*IVP.RHS(t[n+1],y[:,n+1]) + 19*IVP.RHS(t[n],y[:,n]) -5*IVP.RHS(t[n-1],y[:,n-1])
+                    + IVP.RHS(t[n-2],y[:,n-2])) + y[:,n+1]
                     δ = - J \ f
-                    #println(norm(δ))
+                    if norm(δ) ≤ tol
+                        println("Newton converged at $i iterations")
+                        break
+                    end
                     y[:,n+1] += δ
                 end
                 
+                
+            end
+        else
+            for n = k:(Steps-1)
+                t[n+1] += t[n] + h
+                ynext, fnext = AM3(h, y[:,n], f[:,n-2:n], t[n+1], IVP, tol)
+                y[:,n+1] += ynext
+                f[:,n+1] += fnext
             end
         end
 
@@ -120,6 +117,27 @@ module Adams
         return t, y
 
     end
+
+    function AM3(h, yn, f, t, IVP, tol)
+        δ = 1
+        ynext  =  yn
+        fnext = f[:,end]
+        m = size(yn)[1]
+        iter = 0
+        while norm(δ)>tol
+            J = Matrix{Float64}(I, m,m) .- h .*(9/24).*IVP.Jacobian(ynext)
+            L,U = LUfactor(J)
+            Fₙ = -yn - (h/24)*(9*fnext + 19*f[:,end] -5*f[:,end-1]
+                    + f[:,end-2]) + ynext
+            δ = LU_linear_solve(L,U,Fₙ)
+            ynext += δ
+            fnext += IVP.RHS(t,ynext)
+            iter += 1
+        end
+        println("Newton converged at $iter iterations")
+        return ynext, fnext
+    end
+                
 
 
 
@@ -181,25 +199,7 @@ module Adams
         return ynext
     end
 
-    function Jacobian(y, h)
-        dF1dy1 = -1 + (h/24)*(9)*(-0.04)
-        dF1dy2 =  (h/24)*(9)*(1e4)*y[3]
-        dF1dy3 = (h/24)*(9)*(1e4)*y[2]
-
-        dF2dy1 = (h/24)*(9)*(0.04)
-        dF2dy2 = -1 + (h/24)*(9)*((-1e4)*y[3] - 2*(3e7)*y[2])
-        dF2dy3 = (h/24)*(9)*(-1e4)*y[2]
-
-        dF3dy1 = (h/24)*(9)*(0)
-        dF3dy2 = (h/24)*(9)*(2*3e7)*y[2]
-        dF3dy3 = -1 
-
-        J = [dF1dy1 dF1dy2 dF1dy3;
-             dF2dy1 dF2dy2 dF2dy3;
-             dF3dy1 dF3dy2 dF3dy3]
-
-        return J
-    end
+    
 
 
 
