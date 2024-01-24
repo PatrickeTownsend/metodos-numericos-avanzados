@@ -15,7 +15,7 @@ module Problems
     # ----- IVP1: The robertson problem -----
 
         # Right-hand side of the ODE
-        RHS1(t,y::Vector) = [-0.04*y[1] + (1e4)*y[2]*y[3]; 0.04*y[1] - (1e4)*y[2]*y[3] - (3e7)*y[2]^2; (3e7)*y[2]^2];
+        RHS1(t,y) = [-0.04*y[1] + (1e4)*y[2]*y[3]; 0.04*y[1] - (1e4)*y[2]*y[3] - (3e7)*y[2]^2; (3e7)*y[2]^2];
 
         # Initial condition of the ODE
         IC1 = [1., 0., 0.];
@@ -56,7 +56,7 @@ module Problems
         RHS2(t, y) = @. cos(π/4 + t) - (1e6)*(y - sin(π/4 +t))
 
         # Initial condition of the ODE
-        IC2 = [1.];
+        IC2 = [0.707];
         
         # Integration timespan
         tspan2 = (0., 1. /10.);

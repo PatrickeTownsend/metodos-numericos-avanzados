@@ -96,7 +96,7 @@ module Adams
                     + IVP.RHS(t[n-2],y[:,n-2])) + y[:,n+1]
                     δ = - J \ f
                     if norm(δ) ≤ tol
-                        println("Newton converged at $i iterations")
+                        println("Newton converged at $i iterations",y[:,n+1])
                         break
                     end
                     y[:,n+1] += δ
