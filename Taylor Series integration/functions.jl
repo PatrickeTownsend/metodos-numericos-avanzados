@@ -20,20 +20,20 @@ function W_mult_div(x_m, x_n, U_m, k, Wv)
 end
 
 function initializeX(X,m0,x0, v0)
-    X[0,0] = x0[1] #x1
-    X[1,0] = x0[2] #x2
-    X[2,0] = x0[3] #x3
+    X[0] = x0[1] #x1
+    X[1] = x0[2] #x2
+    X[2] = x0[3] #x3
 
-    X[3,0] = v0[1] #x4
-    X[4,0] = v0[2] #x5
-    X[5,0] = v0[3] #x6
+    X[3] = v0[1] #x4
+    X[4] = v0[2] #x5
+    X[5] = v0[3] #x6
 
-    X[6,0] = m0 #x7
+    X[6] = m0 #x7
 
-    X[7,0] = norm(x0)^2 #x8
-    X[8,0] = X[7,0]^(3/2) #x9
-    X[9,0] = norm(v0)^2 #x10
-    X[10,0] = X[9,0]^(1/2) #x11
+    X[7] = norm(x0)^2 #x8
+    X[8] = X[7]^(3/2) #x9
+    X[9] = norm(v0)^2 #x10
+    X[10] = X[9]^(1/2) #x11
     return X
 end
 
@@ -83,34 +83,34 @@ function initializeW(X,U,W)
     return W
 end
 
-function Recursive(X,U,W,k_max,j)
+function Recursive(X,U,W,k_max)
     for k = 1:k_max-1
         # Calculate W
-        W[0,k] = W_div(X[0,j],X[8,j],U[0,:],U[8,:],k, W[0,:]) # W4,1
-        W[1,k] = W_div(X[3,j],X[10,j],U[3,:],U[10,:],k, W[1,:]) # W4,2
+        W[0,k] = W_div(X[0],X[8],U[0,:],U[8,:],k, W[0,:]) # W4,1
+        W[1,k] = W_div(X[3],X[10],U[3,:],U[10,:],k, W[1,:]) # W4,2
 
-        W[2,k] = W_div(X[1,j],X[8,j],U[1,:],U[8,:],k, W[2,:]) # W5,1
-        W[3,k] = W_div(X[4,j],X[10,j],U[3,:],U[10,:],k, W[3,:]) # W5,2
+        W[2,k] = W_div(X[1],X[8],U[1,:],U[8,:],k, W[2,:]) # W5,1
+        W[3,k] = W_div(X[4],X[10],U[3,:],U[10,:],k, W[3,:]) # W5,2
 
-        W[4,k] = W_div(X[2,j],X[8,j],U[3,:],U[8,:],k, W[4,:]) # W6,1
-        W[5,k] = W_div(X[5,j],X[10,j],U[5,:],U[10,:],k, W[5,:]) # W6,2
+        W[4,k] = W_div(X[2],X[8],U[3,:],U[8,:],k, W[4,:]) # W6,1
+        W[5,k] = W_div(X[5],X[10],U[5,:],U[10,:],k, W[5,:]) # W6,2
 
-        W[6,k] = W_mult(X[0,j],X[3,j],U[0,:],U[3,:],k) # W8,1
-        W[7,k] = W_mult(X[1,j],X[4,j],U[1,:],U[4,:],k) # W8,2
-        W[8,k] = W_mult(X[2,j],X[5,j],U[2,:],U[5,:],k) # W8,3
+        W[6,k] = W_mult(X[0],X[3],U[0,:],U[3,:],k) # W8,1
+        W[7,k] = W_mult(X[1],X[4],U[1,:],U[4,:],k) # W8,2
+        W[8,k] = W_mult(X[2],X[5],U[2,:],U[5,:],k) # W8,3
 
-        W[9,k] = W_mult_div(X[7,j],X[8,j],U[7,:],k, W[9,:]) # W9
+        W[9,k] = W_mult_div(X[7],X[8],U[7,:],k, W[9,:]) # W9
 
-        W[10,k] = (X[3,j]*U[3,k] + (U[3,k-1]/k)*U[3,k])
-        W[11,k] = (X[4,j]*U[4,k] + (U[4,k-1]/k)*U[4,k])
-        W[12,k] = (X[5,j]*U[5,k] + (U[5,k-1]/k)*U[5,k])
+        W[10,k] = (X[3]*U[3,k] + (U[3,k-1]/k)*U[3,k])
+        W[11,k] = (X[4]*U[4,k] + (U[4,k-1]/k)*U[4,k])
+        W[12,k] = (X[5]*U[5,k] + (U[5,k-1]/k)*U[5,k])
 
         for j = 1:(k-1)
            W[10,k] += ((U[3,j-1]/j)*U[3,k-j]) # W10,1
            W[11,k] += ((U[4,j-1]/j)*U[4,k-j]) # W10,2
            W[12,k] += ((U[5,j-1]/j)*U[5,k-j]) # W10,3
         end
-        W[13,k] = W_mult_div(X[9,j],X[10,j],U[9,:],k, W[13,:]) # W11
+        W[13,k] = W_mult_div(X[9],X[10],U[9,:],k, W[13,:]) # W11
 
         # Calculate U(k)
         U[10,k] = 0.5*W[13,k] # U11
@@ -118,9 +118,9 @@ function Recursive(X,U,W,k_max,j)
         U[8,k] = (3/2)*W[9,k] # U9
         U[7,k] = 2*W[6,k] + 2*W[7,k] + 2*W[8,k] # U8
         U[6,k] = 0 # U7
-        U[5,k] = -μ*W[4,k] + (T/X[6,j])*W[5,k] # U6
-        U[4,k] = -μ*W[2,k] + (T/X[6,j])*W[3,k] # U5
-        U[3,k] = -μ*W[0,k] + (T/X[6,j])*W[1,k] # U4
+        U[5,k] = -μ*W[4,k] + (T/X[6])*W[5,k] # U6
+        U[4,k] = -μ*W[2,k] + (T/X[6])*W[3,k] # U5
+        U[3,k] = -μ*W[0,k] + (T/X[6])*W[1,k] # U4
         U[2,k] = U[5,k-1]/k
         U[1,k] = U[4,k-1]/k
         U[0,k] = U[3,k-1]/k
@@ -128,6 +128,18 @@ function Recursive(X,U,W,k_max,j)
     return U, W
 end
 
+
+function Step_eclipse(r_sc, r_sun)
+    r_par = dot(r_sun,r_sc)/norm(r_sun)
+    r= norm(r_sc)
+    Re = 6371
+    if r_par + sqrt(r^2 - Re^2) ≤ 0
+        return 0
+    else
+        return 1
+    
+    end
+end
 
 
 
