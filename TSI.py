@@ -175,7 +175,7 @@ def propagate(U,W,x,k_max,mu_cb,t,steps):
 
 testing = propagate(U, W, x, k, mu_cb, t, steps)
 
-
+print(x[6,10:50])
 #%%
 
 plt.figure(0)
