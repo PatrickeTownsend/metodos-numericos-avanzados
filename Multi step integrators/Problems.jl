@@ -19,14 +19,14 @@ module Problems
 
     # ----- IVP1: Scalar exponential decay -----
 
-        # Right-hand side of the ODE
-        RHS1(t,y) = -y;
+       # Right-hand side of the ODE
+       RHS1(t, y) = @. cos(π/4 + t) - (1e6)*(y - sin(π/4 +t))
 
-        # Initial condition of the ODE
-        IC1 = [1.];
-
-        # Integration timespan
-        tspan1 = (0., 2.);
+       # Initial condition of the ODE
+       IC1 = [0.707];
+       
+       # Integration timespan
+       tspan1 = (0., 1. /10.);
 
         # Analytical solution of the ODE
         Sol1(t) = exp(-t);
@@ -38,13 +38,15 @@ module Problems
     # ----- IVP2: Harmonic oscillator with unitary amplitude and frequency -----
 
         # Right-hand side of the ODE
-        RHS2(t, y::Vector) = [0 1; -1 0 ] * y;
+        ω = sqrt(2)
+        ξ = 1/10
+        RHS2(t, y::Vector) = [0 1; -ω^2 -ξ] * y;
 
         # Initial condition of the ODE
         IC2 = [0., 1.];
         
         # Integration timespan
-        tspan2 = (0., 15 * 2π);
+        tspan2 = (0., 5.);
         
         # Analytical solution of the ODE
         Sol2(t) = [ sin(t/(2π)), cos(t/(2π)) ];

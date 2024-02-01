@@ -2,7 +2,7 @@
 
     # Load need libraries
     using Plots
-    using ProgressBars
+    #using ProgressBars
     
     # Include externally declared functions
     include("Problems.jl")
@@ -19,7 +19,7 @@
     IVP = Problems.IVP1;
     
     # Set up the integration parameters:
-    k =  1;         # Set the number of steps that the Adams integrator employs at each integration step
+    k =  4;         # Set the number of steps that the Adams integrator employs at each integration step
     h =  0.01;      # Set the stepsize
 
     # Perform integration

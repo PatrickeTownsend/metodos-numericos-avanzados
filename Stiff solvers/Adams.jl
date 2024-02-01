@@ -8,8 +8,10 @@ module Adams
         t0 = IVP.tspan[1]
         tf = IVP.tspan[2]
         y0 = IVP.IC
+        function_eval = 0
 
         Steps = round(Int, (tf-t0)/h)
+        println(Steps)
 
         Current_k = 1
         Stepper = AB1
@@ -20,6 +22,7 @@ module Adams
         y[:,1] += y0
         t[1] += t0
         f[:,1] += IVP.RHS(t0, y0)
+        function_eval += 1
 
 
         for n = 1:(k-1)
@@ -27,6 +30,7 @@ module Adams
             t[n+1] += t[n] + h
             y[:,n+1] += Stepper(h, y[:,n], f[:,1:n])
             f[:,n+1] += IVP.RHS(t[n+1], y[:,n+1])
+            function_eval += 1
             Current_k += 1
 
             if  Current_k == 2
@@ -40,12 +44,13 @@ module Adams
 
 
         for n = (k):(Steps-1)
-            y[:,n+1] += Stepper(h, y[:,n], f[:,n-3:n])
-            f[:,n+1] += IVP.RHS(t[n+1], y[:,n+1])
+            y[:,n+1] += Stepper(h, y[:,n], f[:,n-(k-1):n])
+            f[:,n+1] += IVP.RHS(t[n], y[:,n])
+            function_eval += 1
             t[n+1] += t[n] + h
         end
 
-        return t, y, f
+        return t, y, f, function_eval
     end
 
     function Moulton(IVP,k::Int, h, prob)
@@ -54,8 +59,11 @@ module Adams
         y0 = IVP.IC
         tol = 1e-8
         max_iter = 5000
+        function_eval = 0
+        iter_global = 0
 
         Steps = round(Int, (tf-t0)/h)
+        println(Steps)
 
         Current_k = 1
         Stepper = AB1
@@ -66,6 +74,8 @@ module Adams
         y[:,1] += y0
         t[1] += t0
         f[:,1] += IVP.RHS(t0, y0)
+        function_eval += 1
+        Jac_eval = 0
 
 
         for n = 1:(k-1)
@@ -73,6 +83,7 @@ module Adams
             t[n+1] += t[n] + h
             y[:,n+1] += Stepper(h, y[:,n], f[:,1:n])
             f[:,n+1] += IVP.RHS(t[n+1], y[:,n+1])
+            function_eval += 1
             Current_k += 1
 
             if  Current_k == 2
@@ -90,11 +101,15 @@ module Adams
                 δ = 1
                 y[:,n+1] = y[:,n]
                 m = size(y)[1]
+
                 for i= 1:max_iter
                     J = Matrix{Float64}(I,m,m) .- h .*(9/24).*IVP.Jacobian(y[:,n+1])
+                    Jac_eval+=1
+                    iter_global += 1
                     f = -y[:,n] - (h/24)*(9*IVP.RHS(t[n+1],y[:,n+1]) + 19*IVP.RHS(t[n],y[:,n]) -5*IVP.RHS(t[n-1],y[:,n-1])
                     + IVP.RHS(t[n-2],y[:,n-2])) + y[:,n+1]
                     δ = - J \ f
+                    function_eval += 1
                     if norm(δ) ≤ tol
                         println("Newton converged at $i iterations",y[:,n+1])
                         break
@@ -113,8 +128,10 @@ module Adams
             end
         end
 
+        println(iter_global)
 
-        return t, y
+
+        return t, y, function_eval, Jac_eval
 
     end
 

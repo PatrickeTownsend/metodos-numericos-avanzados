@@ -1,14 +1,17 @@
 module RungeKutta
    export RK4
    export SDIRK4
+   export SDIRK4_v2
    using LinearAlgebra
 
    function RK4(IVP, h)
       t0 = IVP.tspan[1]
       tf = IVP.tspan[2]
       y0 = IVP.IC
+      function_eval = 0
 
       Steps = round(Int, (tf-t0)/h)
+      println(Steps)
 
       t = zeros(Steps)
       y = zeros(length(y0), Steps)
@@ -23,8 +26,9 @@ module RungeKutta
           k4 = IVP.RHS(t[n] + h, y[:,n] + k3 * h)
           y[:,n+1] += y[:,n] + (h/6)*(k1 + 2*k2 +2*k3 + k4)
           t[n+1] += t[n] + h
+          function_eval += 4
        end
-       return t, y
+       return t, y, function_eval
     end
 
 
@@ -35,6 +39,7 @@ module RungeKutta
         y0 = IVP.IC
 
         Steps = round(Int, (tf-t0)/h)
+        println(Steps)
 
         t = zeros(Steps)
         y = zeros(length(y0), Steps)
@@ -57,6 +62,9 @@ module RungeKutta
     
         di = A \ b
         println(size(di))
+        function_eval = 0
+        Jac_eval = 0
+        iter_global = 0
 
         for n=1:(Steps-1)
             zk = zeros(s*d)
@@ -64,19 +72,24 @@ module RungeKutta
             tn = t[n]
             yn = y[:,n]
             J = IVP.Jacobian(yn)
+            Jac_eval +=1
+            function_eval += 1
             JJ = Matrix{Float64}(I,s*d, s*d) - h.*kron(A,J)
-            iter = 1
+            iter = 0
+
             delta_z = ones(2)
             ηₖ = 1
 
             while ηₖ*delta_z[2] ≥ κ*max_tol
                 iter += 1
+                iter_global += 1
                 delta_z[1] = delta_z[2]
                 Fzᵏ= [h*IVP.RHS(tn+c[1]*h, yn + zk[d*1-d+1:d*1]);
                       h*IVP.RHS(tn+c[2]*h, yn + zk[d*2-d+1:d*2]);
                       h*IVP.RHS(tn+c[3]*h, yn + zk[d*3-d+1:d*3]);
                       h*IVP.RHS(tn+c[4]*h, yn + zk[d*4-d+1:d*4]);
                       h*IVP.RHS(tn+c[5]*h, yn + zk[d*5-d+1:d*5])]
+                function_eval += 5
                 F = -zk + h.*Mat*Fzᵏ
                 Δzᵏ= -JJ \ F
                 delta_z[2] = norm(Δzᵏ)
@@ -104,7 +117,8 @@ module RungeKutta
             println("Newton converged with $iter iterations",y[:,n+1])
 
         end
-        return t, y
+        println(iter_global)
+        return t, y, function_eval, Jac_eval
 
     end
 
@@ -121,21 +135,5 @@ module RungeKutta
         return A, b, c
     end
 
-    function phi(di, z, s, d)
-        if s*d ≤ 5
-            val = 0
-            for i=1:s
-                val += di[i]*z[i]
-            end
-        else
-            val = zeros(d)
-            for i=1:s
-               val += di[i] .* z[3*i-1:3*i]
-            end
-        end
-        return val
-    end
-
-
-
 end
+

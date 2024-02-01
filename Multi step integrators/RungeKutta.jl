@@ -1,6 +1,6 @@
 module RungeKutta
 
-    using ProgressBars
+    #using ProgressBars
 
     export Explicit
 
@@ -35,7 +35,7 @@ module RungeKutta
         Steps = round(Int, (tf-t0) / h );
 
         # Create a ProgressBar object of prescribed length
-        pbar = ProgressBar(total=Steps)
+        #pbar = ProgressBar(total=Steps)
 
         # Embed the 'Stepper' corresponding to the prescribed RK order
         if order == 1
@@ -64,7 +64,7 @@ module RungeKutta
             f = [f fnext];
 
             # Update ProgressBar
-            update(pbar)
+            #update(pbar)
 
         end
 
