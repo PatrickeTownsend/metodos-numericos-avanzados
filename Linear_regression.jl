@@ -10,11 +10,7 @@ function Regression(f::Function, type::String, p::Int, x::LinRange, ω::Float64)
             X = @. [X x^n]
         end
         A = (X'*X) \ (X'*y)
-        f_reg = 0
-
-        for i=1:p+1
-            f_reg = @. f_reg + A[i].*x.^(i-1)
-        end
+        f_reg = X*A
 
     elseif type == "fourier"
         X = @. ones(Float64, N, 1)
@@ -22,14 +18,8 @@ function Regression(f::Function, type::String, p::Int, x::LinRange, ω::Float64)
             X = @. [X cos(i*x*ω) sin(i*x*ω)]
         end
         A = (X'*X) \ (X'*y)
-        f_reg = A[1]
-
-        for i=1:p
-            f_reg = @. f_reg + A[2*i]*cos(i*ω*x) + A[2*i+1]*sin(i*ω*x)
-        end
+        f_reg = X*A
     end
-        
-
     return f_reg
 end
 
